@@ -3,6 +3,7 @@
 ## Introduction
 
 This project develops a machine learning model to predict the length of stay (LOS) in the Intensive Care Unit (ICU). The model leverages patient data to estimate how long an individual will remain in the ICU, aiding healthcare providers in resource management and patient care planning. The model can be tested with synthetic data made available in this repository or your own patient data.
+**Notice**: This README is in regards to the second version of the model, contained in the Stacking_NumericLOS_V2.0 folder.
 
 ## Table of Contents
 
