@@ -3,9 +3,7 @@
 # Author: Dr. Igor Tona Peres, Professor of Industrial Engineering, PUC-Rio
 # igor.peres@puc-rio.br
 # Last updated: 09/18/2024
-library(caret)
-library(tidyverse)
-library(caretEnsemble)
+
 library(caret)
 library(tidyverse)
 library(caretEnsemble)
