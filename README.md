@@ -9,7 +9,6 @@ This project develops a machine learning model to predict the length of stay (LO
 - [Introduction](#introduction)
 - [Installation](#installation)
 - [Usage](#usage)
-- [Features](#features)
 - [Dependencies](#dependencies)
 - [Configuration](#configuration)
 - [Documentation](#documentation)
