@@ -97,4 +97,4 @@ Sample output includes accuracy scores and performance plots that show how well 
 - **Maintainer**: Joana da Matta
 
 ## License
-
+This project is licensed under the terms of the [MIT license](https://github.com/igor-peres/ICU-Length-of-Stay-Prediction/blob/update2024/SLOS_package/LICENSE.md).
