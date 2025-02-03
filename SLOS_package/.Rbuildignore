@@ -1,0 +1,3 @@
+^LICENSE\.md$
+^.*\.R$   
+^cran-comments\.md$
