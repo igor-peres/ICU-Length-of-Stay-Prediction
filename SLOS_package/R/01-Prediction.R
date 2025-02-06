@@ -3,8 +3,7 @@
 #' This function loads the pre-trained model from the package.It's available on GitHub
 #'
 #' @return The SLOS model
-#' @importFrom httr GET write_disk status_code 
-#' @importFrom utils download.file
+#' @importFrom httr GET write_disk status_code http_error
 #' @export
 load_SLOSModel <- function() {
   
@@ -14,7 +13,12 @@ load_SLOSModel <- function() {
   options(timeout = 6000)
   url <- "https://github.com/igor-peres/ICU-Length-of-Stay-Prediction/releases/download/v2.0.0/SLOS_small.RData"
   temp_file <- tempfile(fileext = ".RData")
-  download.file(url, temp_file, mode = "wb")
+  response <- GET(url, write_disk(temp_file, overwrite = TRUE))
+  
+  if (http_error(response)) {
+    stop("Failed to download the model. HTTP error: ", status_code(response))
+  }
+  
   load(temp_file)
   return(small_model)
 }
