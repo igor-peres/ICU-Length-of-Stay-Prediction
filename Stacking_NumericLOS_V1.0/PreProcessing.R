@@ -1,6 +1,6 @@
 #Data Preprocessing for ICU LoS Prediction
 # Author: Dr. Igor Tona Peres, PhD in Industrial Engineering, PUC-Rio
-# igor.peres.puc@gmail.com
+# igor.peres@puc-rio.br
 # Last updated: 02/06/2025
 
 #load("data.RData")
