@@ -36,6 +36,9 @@ training_pre_numeric = training %>%
 training_pre_numeric$UnitLengthStay = NULL
 descrCor <-  cor(training_pre_numeric, 
                  use="pairwise.complete.obs")
+
+corrplot.mixed(descrCor, tl.pos = "lt")
+
 highlyCorDescr <- findCorrelation(descrCor, cutoff = .75)
 retirados_cor = colnames(training_pre_numeric[,highlyCorDescr])
 training_pre_numeric = 
@@ -54,6 +57,9 @@ training_pre_factor = training %>%
 cramer_tab = PairApply(training_pre_factor,
                        CramerV, symmetric = TRUE)
 cramer_tab[which(is.na(cramer_tab[,])==T)] = 0
+
+corrplot.mixed(cramer_tab, tl.pos = "lt")
+
 highlyCorCateg <- findCorrelation(cramer_tab, cutoff = 0.5)
 retirados_categ = colnames(training_pre_factor[,highlyCorCateg])
 training_pre_factor = training_pre_factor %>%
