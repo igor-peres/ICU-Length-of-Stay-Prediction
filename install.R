@@ -1,3 +1,6 @@
+install.packages("IRkernel")
+IRkernel::installspec(user = FALSE)
+
 packages <- c(
   "caret",
   "caretEnsemble",
@@ -5,8 +8,7 @@ packages <- c(
   "MLmetrics",
   "ranger",
   "DescTools",
-  "mice",
-  "IRkernel"
+  "mice"
 )
 
 installed <- rownames(installed.packages())
@@ -16,5 +18,3 @@ for (pkg in packages) {
     install.packages(pkg, dependencies = TRUE)
   }
 }
-
-IRkernel::installspec(user = FALSE)
