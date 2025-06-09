@@ -1,15 +1,5 @@
 pandas
 numpy
 joblib
-sklearn.exceptions
-sklearn.model_selection
-sklearn.feature_selection
-sklearn.experimental
-sklearn.impute
-sklearn.ensemble
-sklearn.linear_model
-sklearn.metrics
-sklearn.preprocessing
-sklearn.compose
-sklearn.pipeline
-scipy.stats
+scikit-learn
+scipy
