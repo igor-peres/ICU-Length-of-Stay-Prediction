@@ -4,7 +4,7 @@
 #'
 #' @param data Data frame or matrix containing testing data
 #' @return Displays the funnel plot, returns the comparing plot as a ggplot object and the SLOS table.
-#' @importFrom SLOS predict_and_evaluate
+#' @importFrom SLOS slos_predict_and_evaluate
 #' @importFrom dplyr mutate case_when bind_cols select group_by summarise ungroup n
 #' @importFrom ggplot2 ggplot geom_point geom_smooth geom_abline aes labs theme_bw annotation_custom theme_void
 #' @importFrom stats na.omit
@@ -28,9 +28,9 @@
 #' }
 #' 
 #' @export
-SLOS <- function(data) {
+SLOS <- function(data, icu_column, outcome, model = NULL) {
   # errors 
-  required_columns <- c("UnitCode", "UnitLengthStay_trunc")
+  required_columns <- c(icu_column, outcome)
   missing_columns <- setdiff(required_columns, colnames(data))
   
   if (nrow(data) == 0) {
@@ -42,7 +42,11 @@ SLOS <- function(data) {
   }
   
   # SLOS function
-  eval_results <- predict_and_evaluate(data)
+  if (is.null(model)) {
+    eval_results <- slos_predict_pretrained(data, outcome = outcome)
+  } else {
+    eval_results <- slos_predict_custom(data, model, outcome = outcome)
+  }
   observations <- eval_results$comparison$Observations
   predictions <- eval_results$predictions$pred
   
@@ -54,12 +58,14 @@ SLOS <- function(data) {
     ))
   
   df_unit_slos <- df_model_pred %>%
-    dplyr::bind_cols(dplyr::select(data, UnitCode)) %>%
-    dplyr::group_by(UnitCode) %>%
-    dplyr::summarise(admissoes = dplyr::n(),
-                     soma_los_obs = sum(observations),
-                     soma_los_esp = sum(predictions)) %>%
-    dplyr::ungroup() %>%
+    dplyr::bind_cols(dplyr::select(data, dplyr::all_of(icu_column))) %>%
+    dplyr::group_by(.data[[icu_column]]) %>%
+    dplyr::summarise(
+      admissoes = dplyr::n(),
+      soma_los_obs = sum(observations),
+      soma_los_esp = sum(predictions),
+      .groups = "drop"
+    ) %>%
     dplyr::mutate(SLOS = soma_los_obs / soma_los_esp) %>%
     stats::na.omit()
   
@@ -81,15 +87,19 @@ SLOS <- function(data) {
   ylim <- c(max(0, y_range[1] - y_padding), y_range[2] + y_padding)
   
   # Using ems::funnel to generate funnel plot
-  funnel_plot <- ems::funnel(unit = df_unit_slos$UnitCode,
-                             y = df_unit_slos$SLOS,
-                             y.type = "SRU",
-                             o = df_unit_slos$soma_los_obs,
-                             e = df_unit_slos$soma_los_esp,
-                             theta = sum(df_unit_slos$soma_los_obs) / sum(df_unit_slos$soma_los_esp),
-                             n = df_unit_slos$admissoes,
-                             method = "normal", option = "rate", plot = FALSE, direct = TRUE)
-  
+  funnel_plot <- ems::funnel(
+    unit = as.factor(df_unit_slos[[icu_column]]),
+    y = df_unit_slos$SLOS,
+    y.type = "SRU",
+    o = df_unit_slos$soma_los_obs,
+    e = df_unit_slos$soma_los_esp,
+    theta = sum(df_unit_slos$soma_los_obs) / sum(df_unit_slos$soma_los_esp),
+    n = df_unit_slos$admissoes,
+    method = "normal",
+    option = "rate",
+    plot = FALSE,
+    direct = TRUE
+  )
   plot(funnel_plot)
 
   return(list(df_unit_slos = df_unit_slos, plot_SLOS_obs_prev = plot_SLOS_obs_prev, funnel_plot = funnel_plot))

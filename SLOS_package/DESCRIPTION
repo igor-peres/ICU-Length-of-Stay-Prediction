@@ -1,7 +1,7 @@
 Package: SLOS
 Type: Package
-Title: ICU Length of Stay Prediction and Efficiency Evaluation
-Version: 1.0.0
+Title: Standardized Length of Stay (SLOS): ICU Length of Stay Prediction and Evaluation
+Version: 1.1.0
 Authors@R: c(person(given = "Igor",
                       family = "Peres",
                       role = "aut",
@@ -11,12 +11,14 @@ Authors@R: c(person(given = "Igor",
                       role = "cre",
                       email = "joana.damatta02@gmail.com"))
 Maintainer: Joana da Matta <joana.damatta02@gmail.com>
-Description: Provides tools for predicting ICU length of stay and assessing ICU efficiency. 
+Description: Provides tools for predicting and evaluating intensive care unit (ICU) length of stay using machine learning methods.
+  Includes functions for data preprocessing, feature selection, multiple imputation by chained equations (MICE), model training with stacking ensembles, and performance evaluation.
+  The package facilitates reproducible ICU efficiency benchmarking and supports flexible model retraining and customization across healthcare datasets.
   It is based on the methodologies proposed by Peres et al. (2022, 2023), which utilize data-driven approaches for modeling and validation, offering insights into ICU performance and patient outcomes. References: Peres et al. (2022)<https://pubmed.ncbi.nlm.nih.gov/35988701/>, Peres et al. (2023)<https://pubmed.ncbi.nlm.nih.gov/37922007/>. 
   More information: <https://github.com/igor-peres/ICU-Length-of-Stay-Prediction>. 
 License: MIT + file LICENSE
 Encoding: UTF-8
-Imports: httr, MLmetrics, ems, dplyr, ggplot2, magrittr, caretEnsemble, ranger
+Imports: httr, MLmetrics, ems, dplyr, ggplot2, magrittr, DescTools, caret, caretEnsemble, ranger, mice
 Suggests: testthat
 RoxygenNote: 7.3.2
 NeedsCompilation: no
