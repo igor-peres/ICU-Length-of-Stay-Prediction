@@ -1,7 +1,7 @@
 set.seed(42)
 
 # Example dataset (adjust to your real object names)
-d <- read.csv("UMCdb_final.csv")
+d <- read.csv("database.csv")
 
 outcome <- "UnitLengthStay_trunc"
 
@@ -67,11 +67,10 @@ res$selected_vars
 print("Removed Columns:")
 setdiff(setdiff(names(train_imp),res$selected_vars), outcome)
 
-train_idx <- as.integer(pp$split$train_idx[, 1])
-test_idx  <- as.integer(pp$split$test_idx)
+selected <- c(res$selected_vars, outcome)
 
-y_train <- df[[outcome]][train_idx]
-y_test  <- df[[outcome]][test_idx]
+train_fs <- train_imp[, selected]
+test_fs  <- test_imp[, selected]
 
 # TRAINING 
 
@@ -81,15 +80,16 @@ non_predictors <- c(
   "icuid"
 )
 
-train_fs <- y_train[, setdiff(names(y_train), non_predictors)]
-test_fs  <- y_test[,  setdiff(names(y_test),  non_predictors)]
+cols_to_remove <- intersect(non_predictors, names(train_fs))
 
+train_final <- train_fs[, setdiff(names(train_fs), cols_to_remove)]
+test_final  <- test_fs[, setdiff(names(test_fs), cols_to_remove)]
 
 fit <- slos_train_new_model(
-  train   = train_fs,
-  test    = test_fs,
-  outcome = "UnitLengthStay_trunc",
-  seed    = 998
+  train = train_final,
+  test = test_final,
+  outcome = outcome,
+  seed = 998
 )
 
 fit$metrics
@@ -97,3 +97,16 @@ fit$metrics
 # EVALUATING EFFICIENCY
 
 results <- SLOS(test_fs, "icuid", "UnitLengthStay_trunc", fit)
+
+slos_values <- results$df_unit_slos$SLOS
+
+general_slos <- sum(results$df_unit_slos$soma_los_obs) / sum(results$df_unit_slos$soma_los_esp)
+general_slos
+
+median_slos <- median(slos_values)
+median_slos
+
+q1_slos <- quantile(slos_values, 0.25)
+q3_slos <- quantile(slos_values, 0.75)
+q1_slos
+q3_slos
