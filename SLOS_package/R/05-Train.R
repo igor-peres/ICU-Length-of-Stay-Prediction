@@ -7,6 +7,8 @@
 #' @param train A data.frame with predictors and the outcome column.
 #' @param outcome Character scalar. Name of the outcome column used for training.
 #'   Default `"UnitLengthStay_trunc"`.
+#' @param icu_column Name of the column containing the ICU identification.
+#'   Default `"icuid"`
 #' @param test Optional data.frame to evaluate on. Must contain the same
 #'   predictors as `train` (at least the columns used by the final model) and
 #'   the `outcome` column for metric computation.
@@ -62,6 +64,7 @@
 slos_train_new_model <- function(
     train,
     outcome = "UnitLengthStay_trunc",
+    icu_column = "icuid",
     test = NULL,
     metric = "RMSE",
     cv_folds = 5,
@@ -156,11 +159,22 @@ slos_train_new_model <- function(
     chr_cols_te <- names(test)[vapply(test, is.character, logical(1))]
     if (length(chr_cols_te)) test[chr_cols_te] <- lapply(test[chr_cols_te], factor)
     
-    keep_cols <- intersect(names(test), colnames(train))
-    test <- test[, keep_cols, drop = FALSE]
+    # Keep a copy of the full test set
+    test_original <- test
     
+    # Only build the predictor matrix from variables used during training
+    predictor_cols <- setdiff(names(train), outcome)
+    
+    missing_cols <- setdiff(predictor_cols, names(test))
+    if (length(missing_cols) > 0) {
+      stop(
+        "The following predictor columns are missing from test: ",
+        paste(missing_cols, collapse = ", ")
+      )
+    }
+    
+    X_te <- test[, predictor_cols, drop = FALSE]
     y_test <- test[[outcome]]
-    X_te <- test[, setdiff(names(test), outcome), drop = FALSE]
     
     if (encode_categoricals) {
       if (is.null(dv)) stop("Internal error: dummyVars object missing.")
@@ -240,12 +254,53 @@ slos_train_new_model <- function(
     } else {
       pred <- as.numeric(pred_raw)
     }
-    rmse <- caret::RMSE(pred, y_test)
-    mae  <- caret::MAE(pred, y_test)
-    r2   <- caret::R2(pred, y_test)
+    rmse_patient <- caret::RMSE(pred, y_test)
+    mae_patient  <- caret::MAE(pred, y_test)
+    r2_patient   <- caret::R2(pred, y_test)
+    
+    icu_df <- data.frame(
+      icu = test_original[[icu_column]],
+      observed = y_test,
+      predicted = pred
+    )
+    
+    icu_df <- icu_df |>
+      dplyr::group_by(icu) |>
+      dplyr::summarise(
+        observed = sum(observed),
+        predicted = sum(predicted),
+        .groups = "drop"
+      )
+    
+    rmse_icu <- caret::RMSE(
+      icu_df$predicted,
+      icu_df$observed
+    )
+    
+    mae_icu <- caret::MAE(
+      icu_df$predicted,
+      icu_df$observed
+    )
+    
+    r2_icu <- caret::R2(
+      icu_df$predicted,
+      icu_df$observed
+    )
+    
     out$predictions <- pred
-    out$metrics <- data.frame(RMSE = rmse, MAE = mae, R2 = r2, row.names = NULL)
-  }
+    out$metrics <- list(
+      patient = data.frame(
+        RMSE = rmse_patient,
+        MAE  = mae_patient,
+        R2   = r2_patient
+      ),
+      icu = data.frame(
+        RMSE = rmse_icu,
+        MAE  = mae_icu,
+        R2   = r2_icu
+      )
+    )
+    }
   
   out
 }

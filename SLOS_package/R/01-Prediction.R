@@ -1,9 +1,15 @@
-#' Load the SLOS model
+#' Load the pre-trained SLOS model
 #'
-#' This function loads the pre-trained model from the package.It's available on GitHub
+#' Downloads the packaged pre-trained SLOS model from its GitHub release and
+#' loads it into memory. The model is fetched over HTTP and may take a few
+#' minutes to download depending on connection speed.
 #'
-#' @return The SLOS model
+#' @return The pre-trained \code{SLOS_model} object.
 #' @importFrom httr GET write_disk status_code http_error
+#' @examples
+#' \donttest{
+#' model <- slos_load_pretrained_model()
+#' }
 #' @export
 slos_load_pretrained_model <- function() {
   
@@ -25,31 +31,35 @@ slos_load_pretrained_model <- function() {
   return(env$SLOS_model)
 }
 
-#' Predict using the SLOS model (pretrained or user-trained)
+#' Predict using the pre-trained SLOS model
 #'
-#' Makes predictions and evaluates RMSE, MAE, and R2. If `model` is not
-#' provided, it falls back to the packaged pretrained model (same as before).
+#' Makes predictions with the packaged pre-trained SLOS model and evaluates
+#' RMSE, MAE, and R2 against the supplied outcome column. If \code{model} is
+#' not provided, it is downloaded automatically via
+#' \code{\link{slos_load_pretrained_model}}.
 #'
-#' @param data A data frame or matrix of new data for prediction.
-#' @param model Optional. A user-trained model (e.g., class 'slos_model' from slos_train()).
-#'              If NULL, the packaged pretrained model is used.
-#'@param outcome The prediction outcome's column name, as a string.
+#' @param data A data frame or matrix of new data for prediction. Must contain
+#'   the \code{outcome} column.
+#' @param model Optional. The pre-trained SLOS model object (as returned by
+#'   \code{\link{slos_load_pretrained_model}}). If \code{NULL} (the default),
+#'   the packaged pretrained model is downloaded and used.
+#' @param outcome The name of the outcome column in \code{data}, as a string.
+#'   Defaults to \code{"UnitLengthStay_trunc"}.
 #' @return A list with:
-#'   - predictions: data.frame with one column 'predictions'
-#'   - comparison: data.frame with columns 'Observations' and 'pred'
-#'   - RMSE, MAE, R2: numeric metrics
+#'   \itemize{
+#'     \item \code{predictions}: data.frame with one column \code{predictions}
+#'     \item \code{comparison}: data.frame with columns \code{Observations} and \code{pred}
+#'     \item \code{RMSE}, \code{MAE}, \code{R2}: numeric evaluation metrics
+#'   }
 #' @importFrom MLmetrics RMSE MAE R2_Score
 #' @importFrom stats predict
-#' @import caretEnsemble
-#' @import ranger
 #' @examples
 #' \donttest{
 #' data(SampledData)
-#' results <- slos_predict_and_evaluate(sampled_data)
+#' results <- slos_predict_pretrained(sampled_data)
 #' }
 #' @export
-#' 
-slos_predict_pretrained <- function(data, outcome = "UnitLengthStay_trunc") {
+slos_predict_pretrained <- function(data, model = NULL, outcome = "UnitLengthStay_trunc") {
   if (!(outcome %in% names(data))) {
     stop("Error: Outcome column '", outcome, "' not found in `data`.")
   }
@@ -75,7 +85,37 @@ slos_predict_pretrained <- function(data, outcome = "UnitLengthStay_trunc") {
     RMSE = RMSE_value, MAE = MAE_value, R2 = R2_value
   )
 }
-
+#' Predict using a custom user-trained SLOS model
+#'
+#' Makes predictions with a user-trained SLOS model (e.g. the object returned
+#' by \code{slos_train_new_model()}), handling factor/dummy encoding and
+#' feature alignment against the model's training-time feature set, then
+#' evaluates RMSE, MAE, and R2 against the supplied outcome column.
+#'
+#' @param data A data frame or matrix of new data for prediction. Must contain
+#'   the \code{outcome} column.
+#' @param model A user-trained SLOS model object, expected to contain
+#'   \code{dummyVars} (a \code{caret} dummy-encoding object with \code{lvls}),
+#'   \code{feature_names} (the character vector of expected predictor names),
+#'   and \code{stacked_model} (the fitted model used for prediction).
+#' @param outcome The name of the outcome column in \code{data}, as a string.
+#'   Defaults to \code{"UnitLengthStay_trunc"}.
+#' @return A list with:
+#'   \itemize{
+#'     \item \code{predictions}: data.frame with one column \code{predictions}
+#'     \item \code{comparison}: data.frame with columns \code{Observations} and \code{pred}
+#'     \item \code{RMSE}, \code{MAE}, \code{R2}: numeric evaluation metrics
+#'   }
+#' @importFrom MLmetrics RMSE MAE R2_Score
+#' @importFrom stats predict
+#' @examples
+#' \donttest{
+#' data(SampledData)
+#' fit <- slos_train_new_model(train = sampled_data, test = sampled_data,
+#'                              outcome = "UnitLengthStay_trunc", icu_column = "icuid")
+#' results <- slos_predict_custom(sampled_data, model = fit)
+#' }
+#' @export
 slos_predict_custom <- function(data, model, outcome = "UnitLengthStay_trunc") {
   
   if (!(outcome %in% names(data))) {
@@ -86,7 +126,7 @@ slos_predict_custom <- function(data, model, outcome = "UnitLengthStay_trunc") {
   y <- data[[outcome]]
   X <- data[, setdiff(names(data), outcome), drop = FALSE]
   
-  # char → factor
+  # char -> factor
   chr_cols <- names(X)[vapply(X, is.character, logical(1))]
   if (length(chr_cols)) X[chr_cols] <- lapply(X[chr_cols], factor)
   
