@@ -1,0 +1,52 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+*{box-sizing:border-box} body{margin:0;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#1f2d3a;background:#fff}
+.wrap{width:1360px;padding:18px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.card{border:1.5px solid #d7e0e6;border-radius:14px;padding:16px 18px;background:#fff}
+.full{margin-top:16px}
+h2{margin:0 0 4px;font-size:20px;color:#15486a} h2 .n{font-weight:800}
+.desc{font-size:12.5px;color:#5b6b78;margin:0 0 12px;line-height:1.35}
+.sub{font-weight:700;color:#15486a;font-size:13.5px;margin:14px 0 6px}
+.row{display:flex;align-items:center;gap:8px;margin:5px 0}
+.lab{width:230px;font-size:12px;text-align:right;color:#33414d;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lab.lock{width:230px;text-align:left}
+.track{flex:1;background:#eef2f5;border-radius:6px;height:13px;overflow:hidden}
+.bar{height:100%;border-radius:6px}
+.val{width:52px;font-size:11.5px;color:#33414d;text-align:right}
+.legend{font-size:11.5px;color:#5b6b78;margin:8px 0 6px}
+.legend b{color:#1f2d3a}
+.dot{display:inline-block;width:10px;height:10px;border-radius:3px;vertical-align:-1px;margin:0 3px 0 10px}
+.cutoff{font-size:12px;color:#33414d;margin:2px 0 10px}
+.pair{font-size:12px;background:#f6f9fb;border:1px solid #e4ebf0;border-radius:8px;padding:6px 9px;margin:5px 0}
+.rchip{background:#eef6f4;color:#2f8f80;font-weight:700;border-radius:6px;padding:1px 7px;margin-right:6px}
+code{font-size:11px;padding:1px 5px;border-radius:5px} .keep{background:#eaf4f1;color:#236b5f} .drop{background:#fdecea;color:#a8392f}
+.note{font-size:11.5px;color:#2f8f80;background:#eef7f4;border:1px solid #d5ebe4;border-radius:8px;padding:7px 10px;margin-top:8px}
+.reco{font-size:11.5px;color:#33414d;background:#eef6f4;border:1px solid #d5ebe4;border-radius:8px;padding:6px 10px;display:inline-block;margin-top:6px}
+</style></head><body><div class="wrap">
+<div class="grid">
+ <div class="card">
+   <h2><span class="n">(a)</span> Missing data</h2>
+   <p class="desc">Share of missing values per variable, measured on the training set. Variables above the cutoff are dropped; the rest are completed by imputation learned on the training set.</p>
+   <div class="cutoff"><b>Cutoff: 30%</b> &nbsp; <span class="dot" style="background:#2f8f80"></span>&lt;5% <span class="dot" style="background:#E1A33A"></span>5–40% <span class="dot" style="background:#C0453B"></span>&gt;40%</div>
+   <div class="row"><div class="lab">HFO airway pressure</div><div class="track"><div class="bar" style="width:100.0%;background:#C0453B"></div></div><div class="val">100.0%</div></div><div class="row"><div class="lab">Intrinsic PEEP</div><div class="track"><div class="bar" style="width:100.0%;background:#C0453B"></div></div><div class="val">100.0%</div></div><div class="row"><div class="lab">Pause pressure</div><div class="track"><div class="bar" style="width:64.6%;background:#C0453B"></div></div><div class="val">64.6%</div></div><div class="row"><div class="lab">Admission source</div><div class="track"><div class="bar" style="width:61.8%;background:#C0453B"></div></div><div class="val">61.8%</div></div><div class="row"><div class="lab">APTT (blood)</div><div class="track"><div class="bar" style="width:43.0%;background:#C0453B"></div></div><div class="val">43.0%</div></div><div class="row"><div class="lab">Urea (blood)</div><div class="track"><div class="bar" style="width:40.0%;background:#E1A33A"></div></div><div class="val">40.0%</div></div><div class="row"><div class="lab">Bed type</div><div class="track"><div class="bar" style="width:19.4%;background:#E1A33A"></div></div><div class="val">19.4%</div></div><div class="row"><div class="lab">Blood-gas sample temp</div><div class="track"><div class="bar" style="width:13.0%;background:#E1A33A"></div></div><div class="val">13.0%</div></div>
+ </div>
+ <div class="card">
+   <h2><span class="n">(b)</span> Redundant pairs &amp; outcome correlation</h2>
+   <p class="desc">Two checks: collinearity between predictors (Pearson &gt; 0.75 for numeric, Cramér's V &gt; 0.5 for categorical), and each variable's correlation with the outcome as a leakage safeguard.</p>
+   <div class="sub">Collinearity (|r| &gt; 0.75)</div>
+   <div class="pair"><span class="rchip">r = 0.98</span> keep <code class="keep">End-expiratory pressure (mean)</code> · drop <code class="drop">PEEP (mean)</code></div><div class="pair"><span class="rchip">r = 0.97</span> keep <code class="keep">Ht bloed (min)</code> · drop <code class="drop">Hb bloed (min)</code></div><div class="pair"><span class="rchip">r = 0.93</span> keep <code class="keep">O2 conc. (set) (mean)</code> · drop <code class="drop">O2 concentration (mean)</code></div>
+   <div class="sub">Correlation with the outcome (flag if |r| &gt; 0.75)</div>
+   <div class="row"><div class="lab">Mean airway pressure</div><div class="track"><div class="bar" style="width:49%;background:#2f8f80"></div></div><div class="val">r=0.37</div></div><div class="row"><div class="lab">Peak airway pressure</div><div class="track"><div class="bar" style="width:47%;background:#2f8f80"></div></div><div class="val">r=0.35</div></div><div class="row"><div class="lab">PEEP</div><div class="track"><div class="bar" style="width:47%;background:#2f8f80"></div></div><div class="val">r=0.35</div></div>
+   <div class="note">No variable exceeds the 0.75 leakage threshold — the strongest correlation with length of stay is |r| = 0.37, so nothing is removed as leakage.</div>
+ </div>
+</div>
+<div class="card full">
+   <h2><span class="n">(c)</span> Variable selection</h2>
+   <p class="desc">Variables ranked by random-forest importance, and how validation R² changes as variables are added. Beyond the plateau, more variables stop helping.</p>
+   <div class="sub">Estimated quality × number of variables</div>
+   <svg width="520" height="150"><text x="28" y="131.0" text-anchor="end" font-size="9" fill="#8a97a3">0.0</text><line x1="34" y1="128.0" x2="510" y2="128.0" stroke="#eef2f5"/><text x="28" y="107.4" text-anchor="end" font-size="9" fill="#8a97a3">0.2</text><line x1="34" y1="104.4" x2="510" y2="104.4" stroke="#eef2f5"/><text x="28" y="83.8" text-anchor="end" font-size="9" fill="#8a97a3">0.4</text><line x1="34" y1="80.8" x2="510" y2="80.8" stroke="#eef2f5"/><text x="28" y="60.2" text-anchor="end" font-size="9" fill="#8a97a3">0.6</text><line x1="34" y1="57.2" x2="510" y2="57.2" stroke="#eef2f5"/><text x="28" y="36.6" text-anchor="end" font-size="9" fill="#8a97a3">0.8</text><line x1="34" y1="33.6" x2="510" y2="33.6" stroke="#eef2f5"/><text x="28" y="13.0" text-anchor="end" font-size="9" fill="#8a97a3">1.0</text><line x1="34" y1="10.0" x2="510" y2="10.0" stroke="#eef2f5"/><text x="34.0" y="144" text-anchor="middle" font-size="9" fill="#8a97a3">0</text><text x="142.2" y="144" text-anchor="middle" font-size="9" fill="#8a97a3">5</text><text x="250.4" y="144" text-anchor="middle" font-size="9" fill="#8a97a3">10</text><text x="358.5" y="144" text-anchor="middle" font-size="9" fill="#8a97a3">15</text><text x="466.7" y="144" text-anchor="middle" font-size="9" fill="#8a97a3">20</text><polyline points="55.6,109.4 77.3,109.4 98.9,101.7 120.5,101.7 142.2,94.6 163.8,94.5 185.5,92.6 207.1,89.4 228.7,88.4 250.4,87.6 272.0,87.6 293.6,85.6 315.3,83.4 336.9,83.4 358.5,83.4 380.2,83.0 401.8,82.5 423.5,81.3 445.1,80.1 466.7,80.1 488.4,79.9 510.0,79.9" fill="none" stroke="#2f8f80" stroke-width="2"/><circle cx="55.6" cy="109.4" r="2.6" fill="#2f8f80"/><circle cx="77.3" cy="109.4" r="2.6" fill="#2f8f80"/><circle cx="98.9" cy="101.7" r="2.6" fill="#2f8f80"/><circle cx="120.5" cy="101.7" r="2.6" fill="#2f8f80"/><circle cx="142.2" cy="94.6" r="2.6" fill="#2f8f80"/><circle cx="163.8" cy="94.5" r="2.6" fill="#2f8f80"/><circle cx="185.5" cy="92.6" r="2.6" fill="#2f8f80"/><circle cx="207.1" cy="89.4" r="2.6" fill="#2f8f80"/><circle cx="228.7" cy="88.4" r="2.6" fill="#2f8f80"/><circle cx="250.4" cy="87.6" r="2.6" fill="#2f8f80"/><circle cx="272.0" cy="87.6" r="2.6" fill="#2f8f80"/><circle cx="293.6" cy="85.6" r="2.6" fill="#2f8f80"/><circle cx="315.3" cy="83.4" r="2.6" fill="#2f8f80"/><circle cx="336.9" cy="83.4" r="2.6" fill="#2f8f80"/><circle cx="358.5" cy="83.4" r="2.6" fill="#2f8f80"/><circle cx="380.2" cy="83.0" r="2.6" fill="#2f8f80"/><circle cx="401.8" cy="82.5" r="2.6" fill="#2f8f80"/><circle cx="423.5" cy="81.3" r="2.6" fill="#2f8f80"/><circle cx="445.1" cy="80.1" r="2.6" fill="#2f8f80"/><circle cx="466.7" cy="80.1" r="2.6" fill="#2f8f80"/><circle cx="488.4" cy="79.9" r="2.6" fill="#2f8f80"/><circle cx="510.0" cy="79.9" r="2.6" fill="#2f8f80"/><text x="34" y="14" font-size="9" fill="#8a97a3">R² (validation)</text><text x="260.0" y="150" font-size="9" fill="#8a97a3"></text></svg>
+   <div class="reco">Recommended: keep the top <b>21</b> features (15 clinical variables) — right at the plateau</div>
+   <div class="sub">Top variables by importance</div>
+   <div class="row"><div class="lab lock">🔒 Vasopressor (noradrenaline)</div><div class="track"><div class="bar" style="width:100.0%;background:#2f8f80"></div></div><div class="val">15.5%</div></div><div class="row"><div class="lab lock">🔒 Pressure control above PEEP</div><div class="track"><div class="bar" style="width:60.6%;background:#2f8f80"></div></div><div class="val">9.4%</div></div><div class="row"><div class="lab lock">🔒 Dynamic compliance</div><div class="track"><div class="bar" style="width:60.6%;background:#2f8f80"></div></div><div class="val">9.4%</div></div><div class="row"><div class="lab lock">🔒 ICU care level</div><div class="track"><div class="bar" style="width:60.0%;background:#2f8f80"></div></div><div class="val">9.3%</div></div><div class="row"><div class="lab lock">🔒 Line/catheter/drain order</div><div class="track"><div class="bar" style="width:59.4%;background:#2f8f80"></div></div><div class="val">9.2%</div></div><div class="row"><div class="lab lock">🔒 Work of breathing</div><div class="track"><div class="bar" style="width:46.5%;background:#2f8f80"></div></div><div class="val">7.2%</div></div>
+</div>
+</div></body></html>
