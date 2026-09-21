@@ -182,6 +182,7 @@ def make_figures(model, X, top, tr, y, gb, theta, phi, over, outdir):
 
 # ------------------------------------------------------------------ pipeline
 def run(csv_path, outdir="."):
+    import os; os.makedirs(outdir, exist_ok=True)
     df = load_and_exclude(csv_path)
     preds = predictor_columns(df.columns)
     y = df["icu_los_d"].astype(float).values
