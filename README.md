@@ -1,83 +1,100 @@
-# SLOS — Reprodução (AmsterdamUMCdb)
+# ICU Length of Stay Prediction
 
-Pipeline do banco bruto aos números, figuras e modelos do artigo
-(*SLOS: A Reproducible Machine Learning Pipeline for ICU Efficiency Benchmarking
-Across Health Systems*, Expert Systems with Applications).
+## Introduction
 
-## Etapa 1 — Extração 24h
-`umcdb_24h_extraction.py`
-- Entrada: tabelas brutas do AmsterdamUMCdb (`admissions`, `numericitems`,
-  `listitems`, `drugitems`, `processitems`, `freetextitems`,
-  `procedureorderitems`) — ajuste os caminhos no topo do script.
-- Restringe a base às localizações de UTI (`IC`, `IC&MC`, `MC&IC`), faz o
-  janelamento por timestamp até **admissão + 24h** em cada tabela e pivota
-  para nível-paciente.
-- Saída: `umcdb_24h_patient_level.csv` (+ CSVs de diagnóstico/cobertura).
+This project develops a machine learning model to predict the length of stay (LOS) in the Intensive Care Unit (ICU). The model leverages patient data to estimate how long an individual will remain in the ICU, aiding healthcare providers in resource management and patient care planning. The model can be tested with synthetic data made available in this repository or your own patient data.
 
-## Etapa 2 — Retreinamento e resultados
-`slos_umcdb_reproduction.py`
-- Entrada: `umcdb_24h_patient_level.csv` (saída da Etapa 1).
-- Exclusão de pacientes (Peres 2022): LoS UTI < 6h removido; idade > 16
-  (auto); LoS hospitalar prévio N/A no UMCdb.
-- Pipeline: split 80/20 estratificado por especialidade; missing 30%; NZV
-  (freqRatio > 19, pctUnique < 10); correlação Pearson 0,75 (numéricas) +
-  Cramér's V 0,5 (categóricas/binárias) + salvaguarda anti-vazamento |r| > 0,75
-  com o desfecho; imputação MICE (PMM); RFE (21 features, platô da curva);
-  stacking Ridge + Random Forest com meta-learner Random Forest (CV 5-fold);
-  SLOS por especialidade + funnel (`ems`).
-- Saída: métricas nível-paciente e nível-unidade, SLOS, funnel, o JSON
-  `slos_umcdb_results.json` e as figuras `fig_importance_nl.png`,
-  `fig_calibration_nl.png`, `fig_efficiency_panel_nl.png`.
-
-```
-python slos_umcdb_reproduction.py --csv umcdb_24h_patient_level.csv --outdir .
+**Notice**: This README is in regards to the second version of the model, available in the Stacking_NumericLOS_V2.0 folder. For information about the SLOS package, please refer to the documentation available in the package's description.
+```R
+> install.packages("SLOS")
+> library(SLOS)
+> ?SLOS
 ```
 
-## Etapa 3 — Modelo do preditor clínico (client-side)
-`build_clinical_model_compact.py`
-- Reutiliza exatamente o pipeline da Etapa 2 (mesmas features e split).
-- Treina o modelo cheio (referência) e uma versão **compacta** (menos árvores),
-  reportando as métricas das duas no teste.
-- Exporta:
-  - `slos_umcdb_model.pkl` — modelo scikit-learn completo (uso em Python).
-  - `slos_umcdb_model_compact.json` — modelo serializado (Ridge + florestas +
-    input-spec) que roda a predição no navegador, embutido no
-    `clinical-predictor.html` do [SLOS Hub](https://igor-peres.github.io/slos-hub/).
+## Table of Contents
 
-```
-python build_clinical_model_compact.py --csv umcdb_24h_patient_level.csv --outdir .
-```
+- [Introduction](#introduction)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Dependencies](#dependencies)
+- [Configuration](#configuration)
+- [Documentation](#documentation)
+- [Examples](#examples)
+- [Troubleshooting](#troubleshooting)
+- [Contributors](#contributors)
+- [License](#license)
 
-`fig_panel_journey.html` reconstrói a figura ilustrativa do painel guiado.
+## Installation
 
-## Modelo treinado (.pkl)
-O modelo completo `slos_umcdb_model.pkl` (~24 MB) está anexado ao
-[Release](../../releases) mais recente (não versionado na árvore do repositório).
-Uso:
-```python
-import joblib
-m = joblib.load("slos_umcdb_model.pkl")          # {"model", "features", "note"}
-pred = m["model"].predict(X[m["features"]]).clip(0, 21)   # LoS em dias
+1. Clone the repository to your local machine.
+2. Install the required R packages (listed in the Dependencies section).
+3. Download the necessary model file (`SLOS_model.RData`) and place it in the working directory.
+
+```bash
+git clone https://github.com/igor-peres/ICU-Length-of-Stay-Prediction
 ```
 
-## Dependências e reprodutibilidade
-`numpy`, `pandas`, `scikit-learn`, `matplotlib`, `joblib`.
-Semente fixa (`SEED = 42`) — resultados determinísticos. Todos os parâmetros
-estão como constantes no topo de `slos_umcdb_reproduction.py`.
+## Usage
 
-## Sample sintético para replicação (revisores)
-`umcdb_synthetic_sample.csv` (~1.200 linhas) + `make_synthetic_umcdb.py`
-- Amostra **totalmente sintética** no formato da extração 24h (mesmos nomes de
-  coluna), para rodar o pipeline **sem** acesso ao AmsterdamUMCdb (restrito).
-- Nenhuma linha real é copiada: cada coluna é reamostrada da sua distribuição
-  empírica (marginais + missingness); a unidade (`specialty`) vem das 8 maiores
-  especialidades com pesos suavizados; o desfecho (LoS) é sintetizado por um
-  modelo simples sobre variáveis de intensidade de cuidado. Sem identificadores
-  reais — não reconstruível a pacientes; seguro para redistribuir.
-- Roda direto no pipeline:
-  ```
-  python slos_umcdb_reproduction.py --csv umcdb_synthetic_sample.csv --outdir out_synth
-  ```
-  (produz métricas paciente/unidade, SLOS, funnel e figuras — valores ilustrativos,
-  não os do artigo).
-- Regenerar: `python make_synthetic_umcdb.py --real <base_real>.csv --out umcdb_synthetic_sample.csv --n 1200 --seed 42`
+1. Ensure that `SLOS_model.RData` is downloaded and available in your working directory.
+2. Run the `Testing.R` script to evaluate the performance of the ICU Length of Stay model.
+
+```bash
+Rscript Testing.R
+```
+
+### Input
+- **predictors.csv**: The file containing the model predictors.
+- **Synthetic_TestingData.csv**: Synthetic patient data used for testing. You can change this input to your patient data.
+
+### Output
+- Performance evaluation results, including metrics and graphs, will be displayed.
+
+## Dependencies
+
+The project requires the following R libraries:
+
+- `caret`
+- `tidyverse`
+- `caretEnsemble`
+- `MLmetrics`
+
+You can install these dependencies using the following command:
+
+```r
+install.packages(c("caret", "tidyverse", "caretEnsemble", "MLmetrics"))
+```
+
+## Configuration
+
+- The scripts (`Training.R` and `Testing.R`) are preconfigured to work with the provided `predictors.csv` dataset and the SLOS model file.
+- Adjustments to the data format or model configurations may require modifying the R scripts.
+
+## Documentation
+
+- **Training.R**: This script is used to train the ICU Length of Stay prediction model. Modify it if you need to retrain the model with new data.
+- **Testing.R**: This script loads the pretrained model (`SLOS_model.RData`) and runs it on test data to produce evaluation results.
+- **DataDictionary.pdf**: Documentation for each column in the input data
+
+## Examples
+
+To run the model and view its performance, execute the following command:
+
+```bash
+Rscript Testing.R
+```
+
+Sample output includes accuracy scores and performance plots that show how well the model predicts ICU stay duration.
+
+## Troubleshooting
+
+- **Model not found error**: Ensure that `SLOS_model.RData` is located in your working directory before running the `Testing.R` script.
+- **Missing libraries**: Make sure all required R libraries are installed before running the scripts.
+
+## Contributors
+
+- **Author**: Professor Igor Peres
+- **Maintainer**: Joana da Matta
+
+## License
+This project is licensed under the terms of the [MIT license](https://github.com/igor-peres/ICU-Length-of-Stay-Prediction/blob/update2024/SLOS_package/LICENSE.md).
