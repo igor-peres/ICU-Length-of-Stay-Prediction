@@ -1,6 +1,6 @@
 # ICU Length of Stay Prediction
 
-> **Status:** the associated paper *SLOS: A Reproducible Machine Learning Pipeline for ICU Efficiency Benchmarking Across Health Systems* (Expert Systems with Applications) is currently **under review**. Contents of the [`reproduction_code/`](reproduction_code/) folder are provided for peer review and may change before publication.
+> **Status:** the associated paper *SLOS: A Reproducible Machine Learning Pipeline for ICU Efficiency Benchmarking Across Health Systems* (Artificial Intelligence in Medicine) is currently **under review**. Contents of the [`reproduction_code/`](reproduction_code/) folder are provided for peer review and may change before publication.
 
 ## Introduction
 
@@ -13,12 +13,12 @@ This project develops a machine learning model to predict the length of stay (LO
 > ?SLOS
 ```
 
-**Reproducing the ESWA paper (AmsterdamUMCdb):** the end-to-end code, synthetic sample and models for the paper *SLOS: A Reproducible Machine Learning Pipeline for ICU Efficiency Benchmarking Across Health Systems* are in the [`reproduction_code/`](reproduction_code/) folder — see [Reproduction](#reproduction--eswa-paper-amsterdamumcdb) below.
+**Reproducing the AIIM paper (AmsterdamUMCdb):** the end-to-end code, synthetic sample and models for the paper *SLOS: A Reproducible Machine Learning Pipeline for ICU Efficiency Benchmarking Across Health Systems* are in the [`reproduction_code/`](reproduction_code/) folder — see [Reproduction](#reproduction--aiim-paper-amsterdamumcdb) below.
 
 ## Table of Contents
 
 - [Introduction](#introduction)
-- [Reproduction — ESWA paper (AmsterdamUMCdb)](#reproduction--eswa-paper-amsterdamumcdb)
+- [Reproduction — AIIM paper (AmsterdamUMCdb)](#reproduction--aiim-paper-amsterdamumcdb)
 - [Installation](#installation)
 - [Usage](#usage)
 - [Dependencies](#dependencies)
@@ -29,9 +29,9 @@ This project develops a machine learning model to predict the length of stay (LO
 - [Contributors](#contributors)
 - [License](#license)
 
-## Reproduction — ESWA paper (AmsterdamUMCdb)
+## Reproduction — AIIM paper (AmsterdamUMCdb)
 
-The [`reproduction_code/`](reproduction_code/) folder reproduces the results, figures and models of the paper *SLOS: A Reproducible Machine Learning Pipeline for ICU Efficiency Benchmarking Across Health Systems* (Expert Systems with Applications), which validates the SLOS pipeline on the Dutch **AmsterdamUMCdb** database.
+The [`reproduction_code/`](reproduction_code/) folder reproduces the results, figures and models of the paper *SLOS: A Reproducible Machine Learning Pipeline for ICU Efficiency Benchmarking Across Health Systems* (Artificial Intelligence in Medicine), which validates the SLOS pipeline on the Dutch **AmsterdamUMCdb** database.
 
 | File | What it does |
 |---|---|
@@ -108,7 +108,7 @@ The Python reproduction code (`reproduction_code/`) requires: `numpy`, `pandas`,
 - **Training.R**: This script is used to train the ICU Length of Stay prediction model. Modify it if you need to retrain the model with new data.
 - **Testing.R**: This script loads the pretrained model (`SLOS_model.RData`) and runs it on test data to produce evaluation results.
 - **DataDictionary.pdf**: Documentation for each column in the input data
-- **reproduction_code/**: Python code, synthetic sample and models reproducing the ESWA paper (AmsterdamUMCdb) — see the [Reproduction](#reproduction--eswa-paper-amsterdamumcdb) section.
+- **reproduction_code/**: Python code, synthetic sample and models reproducing the AIIM paper (AmsterdamUMCdb) — see the [Reproduction](#reproduction--aiim-paper-amsterdamumcdb) section.
 
 ## Examples
 

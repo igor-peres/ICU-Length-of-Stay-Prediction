@@ -2,7 +2,7 @@
 
 Pipeline do banco bruto aos números, figuras e modelos do artigo
 (*SLOS: A Reproducible Machine Learning Pipeline for ICU Efficiency Benchmarking
-Across Health Systems*, Expert Systems with Applications).
+Across Health Systems*, Artificial Intelligence in Medicine).
 
 ## Etapa 1 — Extração 24h
 `umcdb_24h_extraction.py`
